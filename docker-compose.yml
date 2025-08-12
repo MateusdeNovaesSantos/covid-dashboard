@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./apps/backend
+    container_name: covid_api
+    ports:
+      - "5001:5001"
+    volumes:
+      # Sincroniza a pasta do backend com a pasta /app dentro do contêiner
+      # para que as alterações no código reflitam sem precisar reconstruir a imagem.
+      - ./apps/backend:/apps
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - db # Diz ao Docker para iniciar o serviço 'db' antes do 'backend'
+
+  db:
+    image: mysql:8.0
+    container_name: covid_db
+    ports:
+      - "3307:3307"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: covid_data
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
