@@ -12,6 +12,7 @@ services:
       - ./apps/backend:/apps
     environment:
       - FLASK_ENV=development
+      - DATABASE_URL=mysql+mysqlconnector://root:root@db:3306/covid_data
     depends_on:
       - db # Diz ao Docker para iniciar o serviço 'db' antes do 'backend'
 
@@ -19,7 +20,7 @@ services:
     image: mysql:8.0
     container_name: covid_db
     ports:
-      - "3307:3307"
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: covid_data
