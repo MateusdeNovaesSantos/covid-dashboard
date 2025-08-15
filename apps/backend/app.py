@@ -1,6 +1,6 @@
 import os
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, jsonify, request # type: ignore
+from flask_sqlalchemy import SQLAlchemy # type: ignore
 
 app = Flask(__name__)
 
@@ -29,29 +29,62 @@ class CovidCase(db.Model):
         }
         
 # --- ROTAS DA API ---
+
+@app.route("/api/countries", methods=["GET"])
+def get_countries():
+    """ Retorna uma lista única de todos os países no banco. """
+    try:
+        countries_query = db.session.query(CovidCase.country).distinct().order_by(CovidCase.country).all()
+        country_list = [country[0] for country in countries_query]
+        
+        return jsonify(country_list)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/health", methods=["GET"])
 def health_check():
     return jsonify({"status": "healthy", "message": "Backend is running!"})
 
 @app.route("/api/data", methods=["GET"])
 def get_all_data():
-    """Busca todos os registros de casos de covid no banco."""
+    """ 
+    Busca os dados de forma paginada e permite filtrar por país e data.
+    Parâmetros:
+    - page: O número da página (padrão: 1)
+    - per_page: Itens por página (padrão: 20)
+    - country: O nome do país para filtrar
+    """
     try:
-        with app.app_context():
-            db.create_all()
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+        country_filter = request.args.get('country', None, type=str)
         
-        if not CovidCase.query.first():
-            from datetime import date
-            test_case = CovidCase(country="Brasil (Teste)", cases=100, deaths=5, report_date=date.today())
-            db.session.add(test_case)
-            db.session.commit()
+        query = CovidCase.query
         
-        cases = CovidCase.query.order_by(CovidCase.report_date.desc()).all()
-        results = [case.to_dict() for case in cases]
-        return jsonify(results), 200
+        if country_filter:
+            query = query.filter(CovidCase.country.like(f"%{country_filter}%"))
+            
+        query = query.order_by(CovidCase.report_date.desc())
+        paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        results = [case.to_dict() for case in paginated_data.items]
+        
+        return jsonify({
+            "data": results,
+            "pagination": {
+                "page": paginated_data.page,
+                "per_page": paginated_data.per_page,
+                "total_pages": paginated_data.pages,
+                "total_items": paginated_data.total,
+                "has_next": paginated_data.has_next,
+                "has_prev": paginated_data.has_prev
+            }
+        })
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)

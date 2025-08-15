@@ -1,0 +1,24 @@
+date,country,cases,deaths
+2020-02-24,Brazil,1,0
+2020-02-25,Brazil,1,0
+2020-02-26,Brazil,1,0
+2020-03-15,Brazil,200,0
+2020-03-16,Brazil,234,0
+2020-03-17,Brazil,321,1
+2020-03-18,Brazil,372,3
+2020-05-01,Brazil,92108,6397
+2020-02-27,United States,7,0
+2020-02-28,United States,7,0
+2020-02-29,United States,8,0
+2020-03-15,United States,3499,63
+2020-03-16,United States,4661,85
+2020-03-17,United States,6421,108
+2020-05-01,United States,1102657,64943
+2020-03-01,Germany,130,0
+2020-03-02,Germany,159,0
+2020-03-15,Germany,5813,13
+2020-03-16,Germany,7272,17
+2020-05-01,Germany,164077,6736
+2020-03-15,Japan,839,22
+2020-03-16,Japan,878,29
+2020-05-01,Japan,14477,472

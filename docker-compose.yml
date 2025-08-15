@@ -10,6 +10,7 @@ services:
       # Sincroniza a pasta do backend com a pasta /app dentro do contêiner
       # para que as alterações no código reflitam sem precisar reconstruir a imagem.
       - ./apps/backend:/apps
+      - ./data:/data
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=mysql+mysqlconnector://root:root@db:3306/covid_data
