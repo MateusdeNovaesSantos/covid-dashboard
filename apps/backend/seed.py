@@ -1,9 +1,11 @@
 import os
 import pandas as pd
-from datetime import datetime
-from sqlalchemy import create_engine # type: ignore
-from sqlalchemy.orm import sessionmaker # type: ignore
-from app import CovidCase, db, app
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app import create_app
+from app.models import db, CovidCase
+
+app = create_app()
 
 print("--- Iniciando o script de seeding ---")
 

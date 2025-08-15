@@ -20,23 +20,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// --- Tipagem dos Dados ---
-type CovidData = {
-  id: number;
-  country: string;
-  cases: number;
-  deaths: number;
-  report_date: string;
-}
-
-type PaginationInfo = {
-  page: number;
-  per_page: number;
-  total_pages: number;
-  total_items: number;
-  has_next: boolean;
-  has_prev:boolean;
-}
+// --- api ---
+import { getCountries, getPaginatedData, CovidData, PaginationInfo } from "@/lib/api"
 
 export default function HomePage() {
   // --- ESTADOS ---
@@ -50,46 +35,25 @@ export default function HomePage() {
 
   // --- FETCH DATA ---
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async() => {
       setIsLoading(true);
-
-      const params = new URLSearchParams();
-      params.set("page", currentPage.toString());
-      if (selectedCountry !== "all") {
-        params.append("country", selectedCountry);
-      }
-
-      try{
-        const response = await fetch(`http://localhost:5001/api/data?${params.toString()}`);
-        const result = await response.json();
-
-        setData(result.data);
-        setPagination(result.pagination);
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-        setData([]);
-        setPagination(null);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+      const result = await getPaginatedData(currentPage, selectedCountry);
+      setData(result.data);
+      setPagination(result.pagination);
+      setIsLoading(false);
+    };
 
     fetchData();
   }, [currentPage, selectedCountry]);
 
   useEffect(() => {
-    async function fetchCountries() {
-      try {
-        const response = await fetch("http://localhost:5001/api/countries");
-        const countryList = await response.json();
-        setCountries(countryList);
-      } catch (error) {
-        console.error("Erro ao buscar países:", error);
-      }
+    const fetchCountries = async () => {
+      const countryList = await getCountries();
+      setCountries(countryList);
     }
 
     fetchCountries();
-  })
+  }, [])
 
   // --- FUNÇÕES DE MANIPULAÇÃO DE EVENTOS ---
   const handleNextPage = () => {
